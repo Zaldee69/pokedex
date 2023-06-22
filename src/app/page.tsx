@@ -1,6 +1,10 @@
+"use client";
+import PokemonList from "./components/PokemonList";
 import { pokemonNatures } from "./constants";
+import usePokemons from "./hooks/usePokemons";
 
 export default function Home() {
+  const { pokemons, hasMorePokemon, fetchNextPage } = usePokemons();
   return (
     <main className="flex min-h-screen max-w-2xl mx-auto flex-col items-center justify-between ">
       <div className="mt-10 border w-full rounded-md p-5">
@@ -10,7 +14,10 @@ export default function Home() {
             Filter Pokémon by Nature
           </label>
           <div className="flex justify-center mt-1 gap-2">
-            <select className="text-sm border px-2 py-1 rounded" name="pokemon-nature">
+            <select
+              className="text-sm border px-2 py-1 rounded"
+              name="pokemon-nature"
+            >
               {pokemonNatures.map((nature, idx) => (
                 <option key={idx} value={nature.toLowerCase()}>
                   {nature}
@@ -25,6 +32,12 @@ export default function Home() {
             </button>
           </div>
         </form>
+        <div>
+          <PokemonList pokemons={pokemons} />
+          {hasMorePokemon ? (
+            <button className="block mx-auto text-sm mt-10" onClick={fetchNextPage}>Load more</button>
+          ) : null}
+        </div>
       </div>
     </main>
   );
