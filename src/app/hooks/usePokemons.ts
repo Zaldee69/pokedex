@@ -2,10 +2,16 @@
 import { useEffect, useState } from "react";
 import {
   IndexedPokemon,
+  IndexedType,
   ListPokemon,
   PokemonListResponse,
+  PokemonTypeListResponse,
 } from "../interfaces/pokemon.intrerface";
-import { POKEMON_API_POKEMON_URL, POKEMON_IMAGES_BASE_URL } from "../constants";
+import {
+  POKEMON_API_POKEMON_URL,
+  POKEMON_IMAGES_BASE_URL,
+  POKEMON_TYPES,
+} from "../constants";
 import { httpClient } from "../api/httpClient";
 
 const usePokemons = () => {
@@ -13,11 +19,16 @@ const usePokemons = () => {
   const [nextUrl, setNextUrl] = useState<string | null>(
     POKEMON_API_POKEMON_URL
   );
+  const [selectedType, setSelectedType] = useState<IndexedType | null>(null);
 
   useEffect(() => {
-    getPokemons();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (selectedType) {
+      getPokemonsByType();
+    } else {
+      getPokemons();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedType]);
 
   const IndexedPokemonToListPokemon = (indexedPokemon: IndexedPokemon) => {
     const pokedexNumber = parseInt(
@@ -44,7 +55,22 @@ const usePokemons = () => {
           IndexedPokemonToListPokemon(p)
         );
         setPokemons([...pokemons, ...listPokemons]);
-        setNextUrl(result.data.next)
+        setNextUrl(result.data.next);
+      }
+    }
+  };
+
+  const getPokemonsByType = async () => {
+    if (selectedType) {
+      const result = await httpClient.get<PokemonTypeListResponse>(
+        selectedType.url
+      );
+      if (result.data.pokemon) {
+        const listPokemons = result.data.pokemon.map((p) =>
+          IndexedPokemonToListPokemon(p.pokemon)
+        );
+        setPokemons(listPokemons);
+        setNextUrl(POKEMON_API_POKEMON_URL);
       }
     }
   };
@@ -52,7 +78,11 @@ const usePokemons = () => {
   return {
     pokemons,
     fetchNextPage: getPokemons,
-    hasMorePokemon: !!nextUrl
+    hasMorePokemon: !!nextUrl,
+    pokemonTypes: POKEMON_TYPES,
+    setSelectedType,
+    selectedType,
+    setPokemons,
   };
 };
 
