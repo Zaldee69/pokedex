@@ -59,3 +59,19 @@ export interface DetailPokemon {
     };
   };
 }
+
+export interface IndexedType {
+  name: string
+  url: string
+
+}
+
+export interface IndexedPokemonByType {
+  pokemon: IndexedPokemon
+  slot: string
+}
+
+export interface PokemonTypeListResponse {
+  id: number
+  pokemon: IndexedPokemonByType[]
+}
